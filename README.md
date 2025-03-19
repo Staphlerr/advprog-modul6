@@ -253,3 +253,38 @@ fn main() {
 - **Batas Thread** : Mencegah serangan DoS dengan membatasi jumlah thread.
 
 </details>
+
+<details>
+<summary><b>Bonus</b></summary>
+
+## Bonus Reflection
+
+### Commit Bonus Reflection Notes
+
+#### Penjelasan Kode
+1. Error Handling dengan `Result` :
+   - Fungsi `build` mengembalikan `Result<ThreadPool, PoolCreationError>`.
+   - Jika size = 0, mengembalikan error `PoolCreationError::ZeroSize`.
+2. Perubahan dari `new` ke `build` :
+   - `new` sebelumnya langsung panic jika `size = 0`.
+   - `build` memberikan kontrol ke pengguna untuk menangani error (misalnya dengan `match` atau `unwrap_or_else`).
+
+#### Perbaikan Fungsi `build`
+- **Error Handling**: Menggunakan `Result` untuk menangani kesalahan inisialisasi (misalnya, `size = 0`).
+- **Perbandingan dengan `new`**:
+  - **`new`**: Panic langsung jika `size = 0`.
+  - **`build`**: Memberikan kontrol ke pengguna untuk menangani error.
+
+#### Contoh Error Handling
+```rust
+match ThreadPool::build(0) {
+    Ok(pool) => { /* ... */ },
+    Err(err) => eprintln!("Error: {:?}", err),
+}
+```
+
+#### Keuntungan
+**Flexibility** : Pengguna bisa memutuskan cara menangani error (misalnya, logging atau shutdown).
+**Idiomatic Rust** : Mengikuti konvensi Rust untuk error handling dengan Result.
+
+</details>
