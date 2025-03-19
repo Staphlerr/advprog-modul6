@@ -48,7 +48,7 @@ HTTP/1.1 200 OK
 Content-Length: 143
 
 Isi HTML:
-```
+```HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,5 +61,59 @@ Isi HTML:
 
 #### Screenshot
 ![Commit 2 screen capture](assets/images/commit2.png)
+
+</details>
+
+<details>
+<summary><b>Milestone 3</b></summary>
+
+## Milestone 3 Reflection
+
+### Commit 3 Reflection Notes
+
+#### Validasi Request dan Respons Selektif
+- **Validasi Request**: Memeriksa apakah URL yang diminta adalah `/` menggunakan `if-else`.
+- **Respons Dinamis**:
+  - Jika URL adalah `/`, kirim `hello.html` dengan status `HTTP/1.1 200 OK`.
+  - Jika URL lain, kirim `404.html` dengan status `HTTP/1.1 404 NOT FOUND`.
+- **Desain Kreatif**:
+  - Halaman utama (`hello.html`) menggunakan logo Rust, animasi CSS, dan tampilan modern.
+  - Halaman error (`404.html`) menampilkan ikon error dan pesan interaktif.
+
+#### Perubahan Kode
+```rust
+// Potongan kode handle_connection
+if request_line == "GET / HTTP/1.1" {
+  let status_line = "HTTP/1.1 200 OK";
+  let contents = fs::read_to_string("hello.html").unwrap();
+  let length = contents.len();
+  
+  let response = format!(
+  "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
+  );
+  
+  stream.write_all(response.as_bytes()).unwrap();
+} else {
+  let status_line = "HTTP/1.1 404 NOT FOUND";
+  let contents = fs::read_to_string("404.html").unwrap();
+  let length = contents.len();
+  
+  let response = format!(
+  "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
+  );
+  
+  stream.write_all(response.as_bytes()).unwrap();
+}
+```
+
+#### Key Improvements
+- **Error Handling** : Menangani permintaan tidak valid dengan halaman khusus.
+- **Code Structure** : Memisahkan logika penentuan respons ke dalam tuple (status_line, filename).
+- **User Experience** : Desain HTML yang lebih ramah pengguna dengan CSS styling.
+Screenshot
+
+#### Screenshot
+![Halaman Utama](assets/images/commit3_home.png)
+![Halaman Error](assets/images/commit3_404.png)
 
 </details>
