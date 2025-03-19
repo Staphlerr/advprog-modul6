@@ -27,3 +27,39 @@ Typical request contains:
 - Buffering with BufReader for efficient IO
 
 </details>
+
+<details>
+<summary><b>Milestone 2</b></summary>
+
+## Milestone 2 Reflection
+
+### Commit 2 Reflection Notes
+
+#### Perubahan pada `handle_connection`
+- **Membaca File HTML**: Menggunakan `fs::read_to_string` untuk membaca konten `hello.html`
+- **Format Respons HTTP**:
+    - Status Line: `HTTP/1.1 200 OK` (kode sukses)
+    - Header `Content-Length`: Menyatakan ukuran konten dalam byte
+    - Pemisah header dan body: `\r\n\r\n`
+- **Mengirim Respons**: Menggunakan `stream.write_all` untuk mengirim data ke browser
+
+#### Struktur Respons HTTP
+HTTP/1.1 200 OK
+Content-Length: 143
+
+Isi HTML:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Hello!</title> </head> <body>
+<h1>Hello!</h1> <p>Hi from Rust, running from Belva's machine.</p>
+</body>
+</html>
+```
+
+#### Screenshot
+![Commit 2 screen capture](assets/images/commit2.png)
+
+</details>
