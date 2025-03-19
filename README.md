@@ -117,3 +117,39 @@ Screenshot
 ![Halaman Error](assets/images/commit3_404.png)
 
 </details>
+
+<details>
+<summary><b>Milestone 4</b></summary>
+
+## Milestone 4 Reflection
+
+### Commit 4 Reflection Notes
+
+#### Simulasi Respons Lambat
+- **Tujuan**: Memahami keterbatasan server single-threaded dengan mensimulasikan request yang membutuhkan waktu lama.
+- **Simulasi**:
+  - Menambahkan endpoint `/sleep` yang menunda respons selama 10 detik menggunakan `thread::sleep`.
+  - Ketika `/sleep` diakses, semua request lain harus menunggu hingga delay selesai.
+
+#### Observasi
+- **Blocking Behavior**:
+  - Akses ke `http://127.0.0.1:7878/sleep` menyebabkan request ke `http://127.0.0.1:7878/` **tertunda selama 10 detik**.
+  - Server tidak bisa menangani multiple request secara paralel karena hanya memiliki satu thread.
+
+#### Kode Kritis
+```rust
+"GET /sleep HTTP/1.1" => {
+    thread::sleep(Duration::from_secs(10)); // Simulasi operasi yang lama
+    ("HTTP/1.1 200 OK", "hello.html")
+}
+```
+
+#### Implikasi di Dunia Nyata
+- Server single-threaded tidak cocok untuk aplikasi yang membutuhkan skalabilitas.
+- Request yang memakan waktu lama (misalnya: operasi database, API eksternal) akan memblokir semua user lain.
+
+#### Solusi yang Mungkin
+- **Multi-Threading** : Membuat thread baru untuk setiap request.
+- **Asynchronous Programming** : Menggunakan async/await untuk menangani request secara non-blocking.
+
+</details>
