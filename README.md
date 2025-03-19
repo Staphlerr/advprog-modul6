@@ -153,3 +153,103 @@ Screenshot
 - **Asynchronous Programming** : Menggunakan async/await untuk menangani request secara non-blocking.
 
 </details>
+
+<details>
+<summary><b>Milestone 5</b></summary>
+
+## Milestone 5 Reflection
+
+### Commit 5 Reflection Notes
+
+#### Thread Pool Design
+- **Concurrency**: Menggunakan thread pool untuk menangani request secara paralel.
+- **Channel Communication**: Mengirim job dari `execute` ke worker via `mpsc::channel`.
+- **Resource Safety**: Menggunakan `Arc<Mutex<Receiver>>` untuk berbagi receiver secara aman antar thread.
+
+#### Perubahan Kode
+1. **lib.rs**
+```rust
+// src/lib.rs
+use std::{
+  sync::{mpsc, Arc, Mutex},
+  thread,
+};
+
+type Job = Box<dyn FnOnce() + Send + 'static>;
+
+pub struct ThreadPool {
+  workers: Vec<Worker>,
+  sender: mpsc::Sender<Job>,
+}
+
+impl ThreadPool {
+  /// Create a new ThreadPool.
+  ///
+  /// The size is the number of threads in the pool.
+  ///
+  /// # Panics
+  ///
+  /// The `new` function will panic if the size is zero.
+  pub fn new(size: usize) -> ThreadPool {
+    assert!(size > 0);
+
+    let (sender, receiver) = mpsc::channel();
+
+    let receiver = Arc::new(Mutex::new(receiver));
+
+    let mut workers = Vec::with_capacity(size);
+
+    for id in 0..size {
+      workers.push(Worker::new(id, Arc::clone(&receiver)));
+    }
+
+    ThreadPool { workers, sender }
+  }
+
+  pub fn execute<F>(&self, f: F)
+    where
+            F: FnOnce() + Send + 'static,
+  {
+    let job = Box::new(f);
+    self.sender.send(job).unwrap();
+  }
+}
+
+struct Worker {
+  id: usize,
+  thread: thread::JoinHandle<()>,
+}
+
+impl Worker {
+  fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+    let thread = thread::spawn(move || loop {
+      let job = receiver.lock().unwrap().recv().unwrap();
+      println!("Worker {id} got a job; executing.");
+      job();
+    });
+
+    Worker { id, thread }
+  }
+}
+```
+2. main.rs
+```rust
+use hello::ThreadPool;
+
+fn main() {
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(4);
+
+    for stream in listener.incoming() {
+        let stream = stream.unwrap();
+        pool.execute(|| {
+            handle_connection(stream);
+        });
+    }
+}
+```
+#### Keuntungan
+- **Throughput Tinggi** : Server bisa menangani request /sleep dan / secara bersamaan.
+- **Batas Thread** : Mencegah serangan DoS dengan membatasi jumlah thread.
+
+</details>
